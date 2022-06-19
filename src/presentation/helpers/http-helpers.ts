@@ -6,3 +6,10 @@ export function badRequest (error: Error): HttpResponse {
     body: error
   }
 }
+
+export function ok (body: any): HttpResponse {
+  return {
+    statusCode: 200,
+    body
+  }
+}
