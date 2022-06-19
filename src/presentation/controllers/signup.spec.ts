@@ -101,4 +101,20 @@ describe('SignUpController', () => {
     expect(response.statusCode).toBe(400)
     expect(response.body).toEqual(new Error('Email is not valid'))
   })
+
+  it('should return 200 if valid email is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'invalidMail@mail.com',
+        password: 'any_password'
+      }
+    }
+
+    const response = await sut.handle(httpRequest)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toEqual({})
+  })
 })
