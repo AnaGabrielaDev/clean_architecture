@@ -25,6 +25,6 @@
   "scripts": {
     "test": "jest --passWithNoTests --silent --noStackTrace --runInBand",
     "test:staged": "npm test -- --findRelatedTests",
-    "test:unit": "npm test -- --watch -c ./jest-unit.config.ts"
+    "test:unit": "npm test -- --watch -c jest-unit.config.ts"
   }
 }
