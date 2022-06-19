@@ -1,6 +1,7 @@
 import { AddAccount } from '../../domain/usecases/add-account'
+import { InvalidParamError } from '../errors/invalid-param-error'
 import { MissingParamError } from '../errors/missing-param-error'
-import { badRequest } from '../helpers/http-helpers'
+import { badRequest, ok } from '../helpers/http-helpers'
 import { EmailValidator } from '../protocols/email-validator'
 import { Controller, HttpRequest, HttpResponse } from '../protocols/http'
 
@@ -23,7 +24,7 @@ export class SignUpController implements Controller {
       }
 
       const isValidMail = this.emailValidator.isValid(body.email)
-      if (!isValidMail) return badRequest(new Error('Email is not valid'))
+      if (!isValidMail) return badRequest(new InvalidParamError('email'))
 
       const account = await this.addAccount.add({
         name,
@@ -31,10 +32,7 @@ export class SignUpController implements Controller {
         password
       })
 
-      return {
-        statusCode: 200,
-        body: account
-      }
+      return ok(account)
     } catch (error) {
       return {
         statusCode: 500,
