@@ -1,8 +1,27 @@
+import { Account } from '../../domain/models/account'
+import { AddAccount, AddAccountModel } from '../../domain/usecases/add-account'
 import { MissingParamError } from '../errors/missing-param-error'
 import { EmailValidator } from '../protocols/email-validator'
 import { SignUpController } from './signup'
 
-const makeEmailValidatorStub = (): EmailValidator => {
+const makeAddAccount = (): AddAccount => {
+  class AddAccountStub implements AddAccount {
+    async add (accountData: AddAccountModel): Promise<Account> {
+      return await new Promise((resolve) => resolve(
+        {
+          id: 'valid_id',
+          email: 'valid_mail@mail.com',
+          name: 'valid_name',
+          password: 'hash_password'
+        }
+      ))
+    }
+  }
+
+  return new AddAccountStub()
+}
+
+const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     isValid (email: string): boolean {
       return true
@@ -13,14 +32,16 @@ const makeEmailValidatorStub = (): EmailValidator => {
 }
 
 interface SutTypes {
+  addAccount: AddAccount
   emailValidator: EmailValidator
   sut: SignUpController
 }
 const makeSut = (): SutTypes => {
-  const emailValidator = makeEmailValidatorStub()
-  const sut = new SignUpController(emailValidator)
+  const addAccount = makeAddAccount()
+  const emailValidator = makeEmailValidator()
+  const sut = new SignUpController(emailValidator, addAccount)
 
-  return { sut, emailValidator }
+  return { sut, emailValidator, addAccount }
 }
 
 describe('SignUpController', () => {
@@ -107,7 +128,7 @@ describe('SignUpController', () => {
     const httpRequest = {
       body: {
         name: 'any_name',
-        email: 'invalidMail@mail.com',
+        email: 'valid@mail.com',
         password: 'any_password'
       }
     }
@@ -115,6 +136,31 @@ describe('SignUpController', () => {
     const response = await sut.handle(httpRequest)
 
     expect(response.statusCode).toBe(200)
-    expect(response.body).toEqual({})
+    expect(response.body).toEqual({
+      id: 'valid_id',
+      email: 'valid_mail@mail.com',
+      name: 'valid_name',
+      password: 'hash_password'
+    })
+  })
+
+  it('should call add account with correct params', async () => {
+    const { sut, addAccount } = makeSut()
+    const addAccountSpy = jest.spyOn(addAccount, 'add')
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid@mail.com',
+        password: 'any_password'
+      }
+    }
+
+    await sut.handle(httpRequest)
+
+    expect(addAccountSpy).toHaveBeenCalledWith({
+      name: 'any_name',
+      email: 'valid@mail.com',
+      password: 'any_password'
+    })
   })
 })
