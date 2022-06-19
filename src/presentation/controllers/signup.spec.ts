@@ -1,9 +1,18 @@
 import { MissingParamError } from '../errors/missing-param-error'
 import { SignUpController } from './signup'
 
+interface SutTypes {
+  sut: SignUpController
+}
+const makeSut = (): SutTypes => {
+  const sut = new SignUpController()
+
+  return { sut }
+}
+
 describe('SignUpController', () => {
   it('should return 400 if no name is provided', async () => {
-    const sut = new SignUpController()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         email: 'any_mail@mail.com',
@@ -18,7 +27,7 @@ describe('SignUpController', () => {
   })
 
   it('should return 400 if no email is provided', async () => {
-    const sut = new SignUpController()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'any_name',
