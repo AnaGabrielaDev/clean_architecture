@@ -4,7 +4,7 @@ import { Controller, HttpRequest, HttpResponse } from '../protocols/http'
 
 export class SignUpController implements Controller {
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
-    const requiredFields = ['name', 'email']
+    const requiredFields = ['name', 'email', 'password']
     const { body } = httpRequest
 
     for (const field of requiredFields) {
