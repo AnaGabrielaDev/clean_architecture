@@ -1,5 +1,6 @@
 import { Account } from '../../domain/models/account'
 import { AddAccount, AddAccountModel } from '../../domain/usecases/add-account'
+import { InvalidParamError } from '../errors/invalid-param-error'
 import { MissingParamError } from '../errors/missing-param-error'
 import { EmailValidator } from '../protocols/email-validator'
 import { SignUpController } from './signup'
@@ -120,7 +121,7 @@ describe('SignUpController', () => {
     const response = await sut.handle(httpRequest)
 
     expect(response.statusCode).toBe(400)
-    expect(response.body).toEqual(new Error('Email is not valid'))
+    expect(response.body).toEqual(new InvalidParamError('email'))
   })
 
   it('should return 200 if valid email is provided', async () => {
